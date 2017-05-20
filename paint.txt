@@ -1,0 +1,200 @@
+color c, background, savedColor1, savedColor2, savedColor3;
+String[] colors = { "RED", "GREEN", "BLUE", "YELLOW", "CYAN", "WHITE", "BLACK", "CUSTOM", "SAVED1", "SAVED2", "SAVED3"};
+String lastColorName;
+int x, y;
+int s;
+int r, g, b;
+
+void setup() {
+  surface.setTitle("Paint"); 
+  size(1000, 800); 
+  textSize(32);
+  s = 10;  
+  c = color(getColor("WHITE"));
+  background(getColor("BLACK"));
+  background = color(getColor("BLACK"));
+}
+
+void mouseWheel(MouseEvent event) {
+  float e = event.getCount();
+  if (e == -1 && s < 255) {
+    s += -e * 2;
+  }
+  else {
+    if (e == 1 && s > 0) {
+      s += -e * 2;
+    }
+  }
+}
+
+void draw() {  
+  if (keyPressed && key == '1') {
+    savedColor1 = get(mouseX, mouseY);
+    drawColors();
+    printSavedColor("SAVED1", 1);
+  }
+  if (keyPressed && key == '2') {
+    savedColor2 = get(mouseX, mouseY);
+    drawColors();
+    printSavedColor("SAVED2", 2);
+  }
+  if (keyPressed && key == '3') {
+    savedColor3 = get(mouseX, mouseY);
+    drawColors();
+    printSavedColor("SAVED3", 3);
+  }
+  
+  if (keyPressed && key == 's') {
+    println("Saving file...");
+    save("SavedPictures/procPic-" + day() + "." + month() + "." + year() + "-" + hour() + "'" + minute() + "'" + second() + ".jpg");
+  }
+  
+  if (mousePressed && mouseButton == RIGHT) {  
+    background(checkColors()); 
+    background = checkColors();
+    println("Changed background color to " + lastColorName + " @ R:" + red(background) + " G:" + green(background) + " B:" + blue(background));
+  }
+  
+  if (mousePressed && mouseButton == LEFT) { 
+    if (checkColors() != c) {   
+      strokeWeight(0 + s);
+      stroke(c);
+    }
+    else { 
+      println("Changed brush color to " + lastColorName + " @ R:" + red(c) + " G:" + green(c) + " B:" + blue(c)); 
+      return;
+    }
+    
+    if (x == mouseX && y == mouseY) { return; }
+    
+    if (x == 0 && y == 0) {
+      x = mouseX;
+      y = mouseY;
+    }
+    line(x, y, mouseX, mouseY);
+    x = mouseX;
+    y = mouseY;
+  }
+  else {
+    x = mouseX;
+    y = mouseY;
+  }
+  
+  drawColors();
+  drawText();
+  rgbGenerator();
+}
+
+void drawText() {
+  noStroke();
+  if (background == color(0)) {
+    fill(background);
+    rect(0, height - 80, width, 100);
+    fill(255);
+  }
+  else {
+    fill(background);
+    rect(0, height - 80, width, 100);
+    fill(0);
+  }
+  text("Size:" + s + ", R:" + r + ", G:" + g + ", B:" + b, 20, height - 30);
+}
+
+void rgbGenerator() {
+  if (keyPressed) {  
+    
+    if (key == 'n') {
+      r = 0; g = 0; b = 0;
+    }
+    
+    if (key == 'r') {
+      if (r < 255) { r++; }
+      else { r = 0; }
+    }
+    if (key == 'g') {
+      if (g < 255) { g++; }
+      else { g = 0; }
+    }
+    if (key == 'b') {
+      if (b < 255) { b++; }
+      else { b = 0; }
+    }
+  }
+}
+
+color checkColors() {
+  color returnColor = color(0);
+  int i = 0;
+  for (int tempY = 25; tempY < 25 + (50 * colors.length); tempY += 50) {
+    if (mouseX > 25 && mouseX < 75) {
+      if (mouseY > tempY && mouseY < tempY + 50) {
+        c = getColor(colors[i]);
+        lastColorName = colors[i];
+        return getColor(colors[i]);
+      }
+    }
+    i++;
+  }
+  return returnColor;
+}
+
+void drawColors() {
+  noStroke();
+  int tempY = 0;
+  for (String tempC : colors) {
+    fill(getColor(tempC)); 
+    rect(25, 25 + tempY, 50, 50);
+    tempY += 50;
+  }
+}
+
+color getColor(String colorName) {
+  color returnColor = color(0);
+  for (String tempC : colors) {
+    if (tempC.equals("BLACK") && tempC.equals(colorName)) {
+      returnColor = color(0, 0, 0);
+    }
+    if (tempC.equals("RED") && tempC.equals(colorName)) {
+      returnColor = color(255, 0, 0);
+    }
+    if (tempC.equals("GREEN") && tempC.equals(colorName)) {
+      returnColor = color(0, 255, 0);
+    }
+    if (tempC.equals("BLUE") && tempC.equals(colorName)) {
+      returnColor = color(0, 0, 255);
+    }
+    if (tempC.equals("YELLOW") && tempC.equals(colorName)) {
+      returnColor = color(255, 255, 0);
+    }
+    if (tempC.equals("CYAN") && tempC.equals(colorName)) {
+      returnColor = color(0, 255, 255);
+    }
+    if (tempC.equals("WHITE") && tempC.equals(colorName)) {
+      returnColor = color(255, 255, 255);
+    }
+    if (tempC.equals("CUSTOM") && tempC.equals(colorName)) {
+      returnColor = color(r, g, b);
+    }
+    if (tempC.equals("SAVED1") && tempC.equals(colorName)) {
+      returnColor = savedColor1;
+    }
+    if (tempC.equals("SAVED2") && tempC.equals(colorName)) {
+      returnColor = savedColor2;
+    }
+    if (tempC.equals("SAVED3") && tempC.equals(colorName)) {
+      returnColor = savedColor3;
+    }
+    if (tempC.equals("RAINBOW") && tempC.equals(colorName)) {
+      returnColor = color((int)random(0, 255), (int)random(0, 255), (int)random(0, 255));
+    }
+  }
+  return returnColor;
+}
+
+void printSavedColor(String name, int num) {
+  color slot = color(0);
+  if (num == 1) { slot = savedColor1; }
+  if (num == 2) { slot = savedColor2; }
+  if (num == 3) { slot = savedColor3; }
+  println("Saved color " + name + " @ R:" + red(slot) + " G:" + green(slot) + " B:" + blue(slot));
+}
